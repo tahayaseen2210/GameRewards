@@ -1,0 +1,10 @@
+{
+  "appId": "com.gamerewards.app",
+  "appName": "GameRewards",
+  "webDir": "www",
+  "plugins": {
+    "AdMob": {
+      "appIdAndroid": "ca-app-pub-8280766115265288~5036142128"
+    }
+  }
+}
