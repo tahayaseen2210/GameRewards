@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#14100D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GameRewards">
+<meta name="mobile-web-app-capable" content="yes">
+<title>GameRewards v7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#14100D; --surface:#1F1812; --surface-2:#2A2018;
+    --gold:#F0A93E; --violet:#C589E8; --text:#F5EEE1; --text-dim:#9C8B76;
+    --success:#6FB98F; --error:#E0674F; --border:#372B1E;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:'IBM Plex Sans Arabic','IBM Plex Sans',system-ui,sans-serif; min-height:100vh; }
+  button, input { font-family:inherit; }
+  :focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+  .screen { display:none; padding:18px 16px 100px; max-width:480px; margin:0 auto; animation:fade .25s ease; }
+  .screen.active { display:block; }
+  @keyframes fade { from{opacity:0} to{opacity:1} }
+  .topbar { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; max-width:480px; margin:0 auto; }
+  .brand { font-family:'Reem Kufi',sans-serif; font-size:20px; color:var(--gold); }
+  .iconbtn { background:var(--surface); border:1px solid var(--border); color:var(--text-dim); border-radius:20px; padding:6px 12px; font-size:12px; cursor:pointer; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:18px; margin-bottom:14px; }
+  .section-h { font-size:13px; color:var(--text-dim); margin:18px 0 8px; font-weight:600; }
+  .section-h:first-child { margin-top:0; }
+  .ticket { background:var(--surface); border:1px dashed var(--border); border-radius:16px; padding:20px; margin-bottom:14px; position:relative; overflow:hidden; }
+  .ticket::before { content:''; position:absolute; inset-inline-start:-10px; top:50%; transform:translateY(-50%); width:20px; height:20px; background:var(--bg); border-radius:50%; }
+  .ticket::after { content:''; position:absolute; inset-inline-end:-10px; top:50%; transform:translateY(-50%); width:20px; height:20px; background:var(--bg); border-radius:50%; }
+  .points-num { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:44px; color:var(--gold); letter-spacing:1px; text-shadow:0 0 18px rgba(240,169,62,.35); direction:ltr; display:inline-block; }
+  .points-label { font-size:12px; color:var(--text-dim); margin-top:2px; }
+  .level-ring { display:flex; align-items:center; gap:10px; margin-top:14px; }
+  .ring { width:40px; height:40px; border-radius:50%; border:3px solid var(--border); border-top-color:var(--violet); display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:13px; flex-shrink:0; }
+  label { display:block; font-size:12.5px; color:var(--text-dim); margin:10px 0 5px; }
+  input { width:100%; background:var(--surface-2); border:1px solid var(--border); color:var(--text); padding:11px 12px; border-radius:10px; font-size:15px; }
+  button.primary { width:100%; background:var(--gold); color:#251A08; border:none; padding:12px; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; margin-top:14px; }
+  button.primary:disabled { opacity:.5; }
+  button.ghost { width:100%; background:transparent; border:1px solid var(--border); color:var(--text-dim); padding:10px; border-radius:10px; font-size:13px; cursor:pointer; margin-top:8px; }
+  button.chip { background:var(--surface-2); border:1px solid var(--border); color:var(--text); padding:8px 14px; border-radius:20px; font-size:13px; cursor:pointer; }
+  button.chip.active { background:var(--gold); color:#251A08; font-weight:700; border-color:var(--gold); }
+  .msg { font-size:13px; padding:10px 12px; border-radius:10px; margin-top:10px; }
+  .msg.ok { background:rgba(111,185,143,.15); color:var(--success); }
+  .msg.err { background:rgba(224,103,79,.15); color:var(--error); }
+  .item { border-bottom:1px solid var(--border); padding:14px 0; }
+  .item:last-child { border-bottom:none; }
+  .item-row { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .item-title { font-size:14.5px; font-weight:600; }
+  .item-sub { font-size:12px; color:var(--text-dim); margin-top:3px; }
+  .pill { font-size:11px; padding:3px 10px; border-radius:20px; background:var(--surface-2); color:var(--text-dim); white-space:nowrap; flex-shrink:0; }
+  .pill.gold { background:rgba(240,169,62,.18); color:var(--gold); }
+  .pill.violet { background:rgba(197,137,232,.18); color:var(--violet); }
+  .pill.bad { background:rgba(224,103,79,.18); color:var(--error); }
+  .empty { text-align:center; color:var(--text-dim); font-size:13px; padding:30px 10px; }
+  .code-box { display:flex; gap:8px; align-items:center; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:12px; margin-top:8px; }
+  .code-box span { flex:1; font-family:'IBM Plex Mono',monospace; font-size:17px; letter-spacing:2px; direction:ltr; text-align:center; color:var(--gold); }
+  .navbar { position:fixed; bottom:0; inset-inline:0; background:var(--surface); border-top:1px solid var(--border); display:flex; padding:6px 2px calc(6px + env(safe-area-inset-bottom)); max-width:480px; margin:0 auto; gap:0; }
+  .navitem { flex:1; display:flex; flex-direction:column; align-items:center; gap:1px; background:none; border:none; color:var(--text-dim); font-size:8.5px; padding:5px 0; cursor:pointer; min-width:0; }
+  .navitem .ic { font-size:19px; line-height:1; }
+  .navitem span:last-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
+  .navitem.active { color:var(--gold); }
+  .lang-toggle { display:flex; border:1px solid var(--border); border-radius:20px; overflow:hidden; }
+  .lang-toggle button { border:none; background:var(--surface); color:var(--text-dim); padding:6px 12px; font-size:12px; cursor:pointer; }
+  .lang-toggle button.active { background:var(--gold); color:#251A08; font-weight:700; }
+  .redeem-form { margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); }
+  .reward-img { width:100%; height:120px; border-radius:12px; object-fit:cover; background:var(--surface-2); margin-bottom:10px; }
+  .reward-img-placeholder { width:100%; height:120px; border-radius:12px; background:var(--surface-2); margin-bottom:10px; display:flex; align-items:center; justify-content:center; font-size:32px; }
+  .wheel-wrap { position:relative; width:240px; height:240px; margin:10px auto 6px; }
+  .wheel { width:240px; height:240px; border-radius:50%; border:5px solid var(--surface-2); position:relative;
+    background:conic-gradient(var(--gold) 0deg 45deg, var(--surface-2) 45deg 90deg, var(--gold) 90deg 135deg, var(--surface-2) 135deg 180deg,
+      var(--gold) 180deg 225deg, var(--surface-2) 225deg 270deg, var(--gold) 270deg 315deg, var(--violet) 315deg 360deg);
+    transition:transform 3.5s cubic-bezier(.12,.67,.1,1); }
+  .wheel-label { position:absolute; top:50%; left:50%; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:15px; color:#251A08; }
+  .wheel-pointer { position:absolute; top:-6px; left:50%; transform:translateX(-50%); font-size:22px; color:var(--gold); z-index:2; }
+  .spin-status { text-align:center; font-size:13px; color:var(--text-dim); margin-top:12px; }
+
+  /* ── splash ── */
+  #splashScreen { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:999; transition:opacity .5s ease; }
+  #splashScreen.hide { opacity:0; pointer-events:none; }
+
+  /* ── شات ── */
+  .chat-wrap { display:flex; flex-direction:column; height:430px; }
+  .chat-msgs { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:4px 0 8px; scroll-behavior:smooth; }
+  .chat-msgs::-webkit-scrollbar { width:3px; }
+  .chat-msgs::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+  .chat-bubble { max-width:82%; padding:9px 12px; border-radius:14px; font-size:13.5px; line-height:1.45; position:relative; word-break:break-word; }
+  .chat-bubble.mine  { background:rgba(240,169,62,.18); border:1px solid rgba(240,169,62,.25); align-self:flex-end; border-bottom-right-radius:4px; }
+  .chat-bubble.other { background:var(--surface-2); border:1px solid var(--border); align-self:flex-start; border-bottom-left-radius:4px; }
+  .chat-name { font-size:10.5px; color:var(--violet); font-weight:600; margin-bottom:3px; }
+  .chat-time { font-size:10px; color:var(--text-dim); margin-top:3px; text-align:end; direction:ltr; }
+  .chat-input-row { display:flex; gap:8px; margin-top:10px; align-items:flex-end; }
+  .chat-input-row input { flex:1; margin:0; padding:11px 12px; border-radius:12px; }
+  .chat-send { background:var(--gold); color:#251A08; border:none; border-radius:12px; width:44px; height:44px; font-size:18px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .chat-send:disabled { opacity:.5; }
+  .chat-status { font-size:11px; color:var(--text-dim); text-align:center; padding:4px 0 8px; }
+  .chat-del { position:absolute; top:4px; inset-inline-end:6px; background:none; border:none; color:var(--error); font-size:12px; cursor:pointer; opacity:0; transition:opacity .15s; padding:0 2px; line-height:1; }
+  .chat-bubble:hover .chat-del { opacity:1; }
+  /* تبويبات الشات */
+  .chat-tabs { display:flex; gap:6px; margin-bottom:12px; }
+  .chat-tab  { flex:1; padding:8px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-dim); font-size:13px; cursor:pointer; font-family:inherit; text-align:center; }
+  .chat-tab.active { border-color:var(--gold); color:var(--gold); background:rgba(240,169,62,.1); font-weight:700; }
+  /* قائمة المستخدمين للشات الخاص */
+  .dm-user { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+  .dm-user:last-child { border-bottom:none; }
+  .dm-avatar { width:36px; height:36px; border-radius:50%; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; border:1px solid var(--border); }
+  .dm-name { font-size:13.5px; font-weight:500; flex:1; }
+  .dm-back { background:none; border:none; color:var(--gold); font-size:13px; cursor:pointer; font-family:inherit; padding:0 0 8px; }
+
+  /* ── متجر ── */
+  .store-tabs { display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; margin-bottom:14px; scrollbar-width:none; }
+  .store-tabs::-webkit-scrollbar { display:none; }
+  .store-tab { flex-shrink:0; padding:7px 14px; border-radius:20px; font-size:13px; color:var(--text-dim); border:1px solid var(--border); background:var(--surface); cursor:pointer; font-family:inherit; white-space:nowrap; }
+  .store-tab.active { background:var(--gold); color:#251A08; border-color:var(--gold); font-weight:700; }
+  .store-item { border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:10px; cursor:pointer; transition:border-color .18s; }
+  .store-item.selected { border-color:var(--gold); background:rgba(240,169,62,.07); }
+  .store-item-row { display:flex; justify-content:space-between; align-items:center; }
+  .store-item-name { font-size:14px; font-weight:600; }
+  .store-item-price { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--gold); }
+  .store-item-cb { font-size:11px; color:var(--success); margin-top:3px; }
+  .method-btn { flex:1; padding:10px 6px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-dim); font-size:12px; cursor:pointer; font-family:inherit; text-align:center; transition:all .18s; }
+  .method-btn.active { border-color:var(--gold); color:var(--gold); background:rgba(240,169,62,.1); font-weight:700; }
+  .store-summary { background:var(--surface-2); border-radius:12px; padding:14px; margin:14px 0; }
+  .store-summary-row { display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; }
+  .store-summary-row:last-child { margin-bottom:0; font-weight:700; font-size:14px; }
+  .cb-history-item { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; }
+  .cb-history-item:last-child { border-bottom:none; }
+
+  /* ── modal سياسة الخصوصية ── */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:500; display:flex; align-items:flex-end; }
+  .modal-sheet { background:var(--surface); border-radius:20px 20px 0 0; padding:24px 18px calc(24px + env(safe-area-inset-bottom)); max-height:80vh; overflow-y:auto; width:100%; max-width:480px; margin:0 auto; }
+  .modal-sheet h3 { font-family:'Reem Kufi',sans-serif; color:var(--gold); font-size:18px; margin:0 0 12px; }
+  .modal-sheet p  { font-size:13px; color:var(--text-dim); line-height:1.7; margin:0 0 10px; }
+</style>
+</head>
+<body>
+
+<!-- ── Splash Screen ── -->
+<div id="splashScreen">
+  <div class="brand" style="font-size:42px;margin-bottom:10px;">🎮</div>
+  <div class="brand" style="font-size:28px;">GameRewards</div>
+  <div style="color:var(--text-dim);font-size:13px;margin-top:8px;" data-t="tagline"></div>
+  <div style="margin-top:40px;width:40px;height:3px;background:var(--border);border-radius:4px;overflow:hidden;">
+    <div style="height:100%;background:var(--gold);animation:splashbar 1.8s ease forwards;"></div>
+  </div>
+  <style>@keyframes splashbar{from{width:0}to{width:100%}}</style>
+</div>
+
+<!-- ── Modal سياسة الخصوصية ── -->
+<div class="modal-overlay" id="privacyModal" style="display:none;">
+  <div class="modal-sheet">
+    <h3 data-t="privacyTitle"></h3>
+    <p data-t="privacyBody"></p>
+    <p data-t="privacyBody2"></p>
+    <p data-t="privacyBody3"></p>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="primary" style="margin:0;flex:2;" onclick="acceptPrivacy()" data-t="privacyAccept"></button>
+      <button class="ghost" style="margin:0;flex:1;" onclick="showPrivacy()" data-t="privacyRead"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal نسيت كلمة المرور ── -->
+<div class="modal-overlay" id="forgotModal" style="display:none;">
+  <div class="modal-sheet">
+    <h3 data-t="forgotTitle"></h3>
+    <p data-t="forgotBody"></p>
+    <label data-t="emailLabel"></label>
+    <input id="forgotEmail" type="email" autocomplete="email">
+    <button class="primary" onclick="sendForgotPassword()" data-t="forgotSend"></button>
+    <div id="forgotMsg"></div>
+    <button class="ghost" style="margin-top:6px;" onclick="closeModal('forgotModal')" data-t="cancel"></button>
+  </div>
+</div>
+
+<div id="authScreen" class="screen active" style="padding:0;min-height:100vh;background:#080c14;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+
+<style>
+/* ── خلفية hex ── */
+.auth-bg{position:fixed;inset:0;z-index:0;background:#080c14;overflow:hidden;}
+.auth-bg::before{content:'';position:absolute;inset:0;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='52'%3E%3Cpolygon points='30,2 58,17 58,47 30,62 2,47 2,17' fill='none' stroke='%234fa8ff' stroke-width='1'/%3E%3C/svg%3E");background-size:60px 52px;}
+.auth-bg::after{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:500px;height:400px;background:radial-gradient(ellipse,rgba(30,120,255,.16) 0%,transparent 70%);pointer-events:none;}
+/* ── إطار ── */
+.auth-frame{position:relative;z-index:1;width:calc(100% - 24px);max-width:380px;margin:16px auto;border-radius:20px;padding:2.5px;background:linear-gradient(135deg,#c9a84c,#4fa8ff,#8a6a1a,#4fa8ff,#c9a84c);}
+.auth-inner{background:linear-gradient(160deg,#0e1825 0%,#070d15 100%);border-radius:18px;padding:24px 18px 28px;position:relative;overflow:hidden;}
+.auth-sideL,.auth-sideR{position:absolute;top:80px;bottom:80px;width:3px;border-radius:3px;background:linear-gradient(to bottom,transparent,#4fa8ff88,#4fa8ffcc,#4fa8ff88,transparent);}
+.auth-sideL{left:0;} .auth-sideR{right:0;}
+/* ── شعار ── */
+.auth-logo-wrap{text-align:center;margin-bottom:22px;}
+.auth-logo-circle{width:96px;height:96px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#1a2a40,#080f1a);border:2px solid #c9a84c;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 0 24px rgba(201,168,76,.35),inset 0 0 16px rgba(0,0,0,.5);}
+.auth-gr{font-size:34px;font-weight:900;background:linear-gradient(135deg,#c9a84c,#fff,#4fa8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:'Arial Black','Reem Kufi',sans-serif;letter-spacing:-2px;}
+.auth-wings{font-size:20px;line-height:1.2;}
+.auth-game{font-size:22px;font-weight:900;font-family:'Arial Black','Reem Kufi',sans-serif;background:linear-gradient(90deg,#c9a84c,#f0d080,#c9a84c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:3px;line-height:1.1;}
+.auth-rewards{font-size:18px;font-weight:900;font-family:'Arial Black','Reem Kufi',sans-serif;background:linear-gradient(90deg,#4fa8ff,#80c4ff,#4fa8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:4px;}
+.auth-tagline{font-size:10px;color:#4a6a8a;letter-spacing:3px;margin-top:3px;}
+/* ── بطاقة الدخول ── */
+.auth-card{background:linear-gradient(160deg,#111c2b,#0c1520);border-radius:14px;padding:18px 16px;border:1px solid rgba(201,168,76,.3);position:relative;overflow:hidden;}
+.auth-card::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60%;height:1px;background:linear-gradient(90deg,transparent,#c9a84c,transparent);}
+.auth-card-title{text-align:center;font-size:14px;font-weight:700;color:#c9a84c;letter-spacing:2px;margin-bottom:16px;display:flex;align-items:center;gap:8px;justify-content:center;}
+.auth-card-title::before,.auth-card-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.35));}
+/* ── تبديل تسجيل/إنشاء ── */
+.auth-mode-tabs{display:flex;gap:6px;margin-bottom:14px;}
+.auth-tab{flex:1;padding:9px;border-radius:9px;border:1px solid rgba(79,168,255,.2);background:rgba(10,20,40,.8);color:#4a6a8a;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;}
+.auth-tab.active{border-color:#4fa8ff;color:#fff;background:linear-gradient(135deg,rgba(25,70,150,.8),rgba(15,50,120,.8));box-shadow:0 0 12px rgba(79,168,255,.3);}
+/* ── حقول ── */
+.auth-field{position:relative;margin-bottom:12px;}
+.auth-field-icon{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:#4fa8ff;font-size:16px;pointer-events:none;}
+.auth-field input{width:100%;background:#0a1525;border:1px solid rgba(79,168,255,.22);border-radius:10px;padding:12px 40px 12px 12px;color:#c8d8e8;font-size:14px;outline:none;font-family:inherit;transition:border-color .2s,box-shadow .2s;}
+.auth-field input::placeholder{color:#2d4560;}
+.auth-field input:focus{border-color:rgba(79,168,255,.55);box-shadow:0 0 0 3px rgba(79,168,255,.07);}
+.auth-eye{position:absolute;left:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#4fa8ff;cursor:pointer;font-size:15px;padding:0;line-height:1;}
+/* ── نسيت كلمة المرور ── */
+.auth-forgot{text-align:left;margin:-4px 0 12px;}
+.auth-forgot button{background:none;border:none;color:#c9a84c;font-size:12px;cursor:pointer;font-family:inherit;padding:0;opacity:.85;}
+/* ── زر الدخول ── */
+.auth-btn-login{width:100%;padding:13px;border-radius:10px;border:1px solid rgba(79,168,255,.4);background:linear-gradient(90deg,#1a4a8a,#2060c0,#1a4a8a);color:#fff;font-size:15px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:inherit;position:relative;overflow:hidden;box-shadow:0 0 18px rgba(32,96,192,.45);}
+.auth-btn-login:hover{box-shadow:0 0 28px rgba(79,168,255,.65);}
+.auth-btn-login:disabled{opacity:.5;}
+/* ── أو ── */
+.auth-or{display:flex;align-items:center;gap:10px;margin:12px 0;color:#2a4060;font-size:12px;}
+.auth-or::before,.auth-or::after{content:'';flex:1;height:1px;background:rgba(79,168,255,.1);}
+/* ── أزرار بديلة ── */
+.auth-alt{display:flex;gap:6px;margin-bottom:16px;}
+.auth-alt-btn{flex:1;padding:10px 4px;border-radius:9px;border:1px solid rgba(79,168,255,.18);background:rgba(10,20,40,.8);color:#6a90b0;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px;transition:all .2s;}
+.auth-alt-btn:hover{border-color:rgba(79,168,255,.4);color:#c8d8e8;}
+/* ── إنشاء حساب ── */
+.auth-signup-row{text-align:center;font-size:12.5px;color:#2e4a60;}
+.auth-signup-row button{background:none;border:none;color:#c9a84c;font-weight:700;cursor:pointer;font-family:inherit;font-size:12.5px;padding:0;}
+/* ── اللغة ── */
+.auth-lang{display:flex;justify-content:center;margin-bottom:16px;}
+.auth-lang-btn{background:none;border:1px solid rgba(201,168,76,.25);color:#5a7a6a;padding:5px 14px;font-size:12px;cursor:pointer;font-family:inherit;}
+.auth-lang-btn:first-child{border-radius:20px 0 0 20px;}
+.auth-lang-btn:last-child{border-radius:0 20px 20px 0;}
+.auth-lang-btn.active{background:rgba(201,168,76,.15);color:#c9a84c;border-color:#c9a84c;}
+</style>
+
+<div class="auth-bg"></div>
+
+<div class="auth-frame">
+  <div class="auth-inner">
+    <div class="auth-sideL"></div>
+    <div class="auth-sideR"></div>
+
+    <!-- شعار -->
+    <div class="auth-logo-wrap">
+      <div class="auth-wings">🦅&nbsp;&nbsp;🦅</div>
+      <div class="auth-logo-circle">
+        <span class="auth-gr">GR</span>
+      </div>
+      <div class="auth-game">GAME</div>
+      <div class="auth-rewards">REWARDS</div>
+      <div class="auth-tagline">PLAY &nbsp;•&nbsp; EARN &nbsp;•&nbsp; REDEEM</div>
+    </div>
+
+    <!-- تبديل لغة -->
+    <div class="auth-lang">
+      <button class="auth-lang-btn active" id="langAr" onclick="setLang('ar')">العربية</button>
+      <button class="auth-lang-btn" id="langEn" onclick="setLang('en')">English</button>
+    </div>
+
+    <!-- بطاقة الدخول -->
+    <div class="auth-card">
+      <div class="auth-card-title" id="authCardTitle">تسجيل الدخول</div>
+
+      <!-- تبويبات -->
+      <div class="auth-mode-tabs">
+        <button class="auth-tab active" id="modeSignin" onclick="setAuthMode('signin')" data-t="signIn"></button>
+        <button class="auth-tab" id="modeSignup" onclick="setAuthMode('signup')" data-t="signUp"></button>
+      </div>
+
+      <!-- حقل الإيميل -->
+      <div class="auth-field">
+        <i class="ti ti-user auth-field-icon" aria-hidden="true"></i>
+        <input id="authEmail" type="email" autocomplete="email" data-t-placeholder="emailLabel">
+      </div>
+
+      <!-- حقل كلمة المرور -->
+      <div class="auth-field">
+        <i class="ti ti-lock auth-field-icon" aria-hidden="true"></i>
+        <input id="authPassword" type="password" autocomplete="current-password" data-t-placeholder="passwordLabel">
+        <button class="auth-eye" onclick="toggleAuthPwd()" aria-label="إظهار/إخفاء">
+          <i class="ti ti-eye" id="authEyeIcon" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <!-- كود الإحالة (إنشاء حساب) -->
+      <div id="refCodeWrap" style="display:none;" class="auth-field">
+        <i class="ti ti-gift auth-field-icon" aria-hidden="true"></i>
+        <input id="authRefCode" style="text-transform:uppercase;" data-t-placeholder="referralCodeOptional">
+      </div>
+
+      <!-- نسيت كلمة المرور -->
+      <div class="auth-forgot" id="forgotBtn" style="display:block;">
+        <button onclick="openModal('forgotModal')" data-t="forgotPassword"></button>
+      </div>
+
+      <!-- زر الدخول -->
+      <button class="auth-btn-login" id="authSubmitBtn" onclick="handleAuthSubmit()" data-t="signIn"></button>
+
+      <!-- سياسة الخصوصية -->
+      <div style="font-size:11px;color:#2a4060;text-align:center;margin:10px 0 2px;">
+        <span data-t="bySigningUp"></span>
+        <span style="color:#c9a84c;cursor:pointer;" onclick="showPrivacy()" data-t="privacyPolicy"></span>
+      </div>
+      <div id="authMsg"></div>
+
+      <!-- أو -->
+      <div class="auth-or" data-t="or">أو</div>
+
+      <!-- أزرار بديلة -->
+      <div class="auth-alt">
+        <button class="auth-alt-btn" onclick="handleGuestLogin()">
+          <i class="ti ti-device-gamepad-2" aria-hidden="true"></i>
+          <span data-t="guestLogin"></span>
+        </button>
+      </div>
+
+      <!-- إنشاء حساب -->
+      <div class="auth-signup-row">
+        <span data-t="noAccount"></span>
+        <button onclick="setAuthMode('signup')" data-t="signUp"></button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<div id="appShell" style="display:none">
+  <div class="topbar">
+    <div class="brand">GameRewards</div>
+    <div class="lang-toggle"><button id="langArApp" onclick="setLang('ar')">AR</button><button id="langEnApp" onclick="setLang('en')">EN</button></div>
+  </div>
+
+  <div id="homeScreen" class="screen active">
+    <div class="ticket">
+      <div class="points-label" data-t="points"></div>
+      <span class="points-num" id="homePoints">0</span>
+      <div class="level-ring">
+        <div class="ring" id="homeLevelRing">1</div>
+        <div>
+          <div style="font-size:13px;" data-t="level"></div>
+          <div id="vipPill" class="pill violet" style="display:none;margin-top:3px;">VIP</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;color:var(--text-dim);margin-bottom:6px;" data-t="yourReferralCode"></div>
+      <div class="code-box"><span id="homeRefCode">—</span>
+        <button class="iconbtn" onclick="copyRefCode(this)" data-t="copy"></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tasksScreen" class="screen">
+    <h2 style="font-family:'Reem Kufi',sans-serif;color:var(--gold);font-size:19px;" data-t="tasks"></h2>
+    <div class="card"><div id="tasksList" class="empty" data-t="loading"></div></div>
+  </div>
+
+  <div id="rewardsScreen" class="screen">
+    <h2 style="font-family:'Reem Kufi',sans-serif;color:var(--gold);font-size:19px;" data-t="rewards"></h2>
+    <div id="rewardsList" class="empty" data-t="loading"></div>
+  </div>
+
+  <div id="gameScreen" class="screen">
+    <h2 style="font-family:'Reem Kufi',sans-serif;color:var(--gold);font-size:19px;" data-t="game"></h2>
+    <div class="card" style="text-align:center;">
+      <div class="wheel-wrap">
+        <div class="wheel-pointer">▼</div>
+        <div class="wheel" id="wheelEl">
+          <div class="wheel-label" style="transform:translate(-50%,-50%) rotate(22.5deg) translateY(-85px) rotate(-22.5deg)">10</div>
+          <div class="wheel-label" style="transform:translate(-50%,-50%) rotate(67.5deg) translateY(-85px) rotate(-67.5deg)">20</div>
+          <div class="wheel-label" style="transform:translate(-50%,-50%) rotate(112.5deg) translateY(-85px) rotate(-112.5deg)">50</div>
+          <div class="wheel-label" style="transform:translate(-50%,-50%) rotate(157.5deg) translateY(-85px) rotate(-157.5deg)">10</div>
+          <div class="wheel-label" style="transform:translate(-50%,-50%) rotate(202.5deg) translateY(-85px) rotate(-202.5deg)">100</div>
+          <div class="wheel-label" style="transform:translate(-50%,-50%) rotate(247.5deg) translateY(-85px) rotate(-247.5deg)">20</div>
+          <div class="wheel-label" style="transform:translate(-50%,-50%) rotate(292.5deg) translateY(-85px) rotate(-292.5deg)">10</div>
+          <div class="wheel-label" style="transform:translate(-50%,-50%) rotate(337.5deg) translateY(-85px) rotate(-337.5deg);color:var(--violet)">500</div>
+        </div>
+      </div>
+      <button class="primary" id="spinBtn" onclick="doSpin()" data-t="spinNow"></button>
+      <div class="spin-status" id="spinStatus"></div>
+      <div id="spinMsg"></div>
+    </div>
+  </div>
+
+  <div id="leaderboardScreen" class="screen">
+    <h2 style="font-family:'Reem Kufi',sans-serif;color:var(--gold);font-size:19px;" data-t="leaderboard"></h2>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:12px;color:var(--text-dim);" data-t="yourLeague"></div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:28px;color:var(--violet);margin-top:4px;" id="myLeagueTier">—</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:6px;" data-t="leagueRules"></div>
+    </div>
+    <div class="card"><div id="leaderboardList" class="empty" data-t="loading"></div></div>
+  </div>
+
+  <div id="moreScreen" class="screen">
+    <div class="section-h" data-t="wallet"></div>
+    <div class="card"><div id="walletList" class="empty" data-t="loading"></div></div>
+
+    <div class="section-h" data-t="vault"></div>
+    <div class="card">
+      <div id="vaultActive"></div>
+      <div id="vaultForm">
+        <label data-t="lockAmount"></label>
+        <input id="vaultPoints" type="number" placeholder="0">
+        <div class="row" style="margin-top:8px;gap:6px;">
+          <button class="chip active" id="dur30" style="flex:1;" onclick="setVaultDuration(30)">30 <span data-t="days"></span></button>
+          <button class="chip" id="dur90" style="flex:1;" onclick="setVaultDuration(90)">90 <span data-t="days"></span></button>
+        </div>
+        <div style="font-size:11.5px;color:var(--text-dim);margin-top:8px;" data-t="vaultPerk"></div>
+        <button class="primary" onclick="lockPoints()" data-t="lockNow"></button>
+        <div id="vaultMsg"></div>
+      </div>
+    </div>
+
+    <div class="section-h" data-t="referrals"></div>
+    <div class="card">
+      <div style="font-size:13px;color:var(--text-dim);margin-bottom:6px;" data-t="yourReferralCode"></div>
+      <div class="code-box"><span id="refScreenCode">—</span><button class="iconbtn" onclick="copyRefCode(this)" data-t="copy"></button></div>
+      <div id="referredByCard" style="display:none;margin-top:14px;">
+        <div style="font-size:13px;color:var(--text-dim);margin-bottom:6px;" data-t="referredBy"></div>
+        <div id="referredByProgress"></div>
+      </div>
+      <div style="margin-top:14px;">
+        <div style="font-size:13px;color:var(--text-dim);margin-bottom:6px;" data-t="myInvites"></div>
+        <div id="invitesList" class="empty" data-t="loading"></div>
+      </div>
+    </div>
+
+    <div class="section-h" data-t="settings"></div>
+    <div class="card">
+      <label data-t="redeemVipCode"></label>
+      <input id="vipCodeInput" placeholder="XXXXXXXX" style="text-transform:uppercase;">
+      <button class="primary" onclick="redeemVip()" data-t="confirmRedeem"></button>
+      <div id="vipMsg"></div>
+    </div>
+    <button class="ghost" onclick="signOutApp()" data-t="signOut"></button>
+  </div>
+
+  <!-- ── شاشة الشات ── -->
+  <div id="chatScreen" class="screen">
+    <h2 style="font-family:'Reem Kufi',sans-serif;color:var(--gold);font-size:19px;" data-t="chat"></h2>
+
+    <!-- تبويبات عام / خاص -->
+    <div class="chat-tabs">
+      <button class="chat-tab active" id="tabPublic"  onclick="switchChatTab('public')"  data-t="chatPublic"></button>
+      <button class="chat-tab"        id="tabPrivate" onclick="switchChatTab('private')" data-t="chatPrivate"></button>
+    </div>
+
+    <!-- شات عام -->
+    <div id="chatPublicWrap" class="card" style="padding:14px;">
+      <div class="chat-wrap">
+        <div class="chat-status" id="chatStatus" data-t="chatConnecting"></div>
+        <div class="chat-msgs" id="chatMsgs"><div class="empty" data-t="chatEmpty"></div></div>
+        <div class="chat-input-row">
+          <input id="chatInput" maxlength="300" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg();}">
+          <button class="chat-send" id="chatSendBtn" onclick="sendChatMsg()">➤</button>
+        </div>
+        <div style="font-size:10.5px;color:var(--text-dim);text-align:center;margin-top:6px;" data-t="chatHint"></div>
+      </div>
+    </div>
+
+    <!-- شات خاص -->
+    <div id="chatPrivateWrap" style="display:none;">
+      <!-- قائمة المستخدمين -->
+      <div id="dmListWrap" class="card">
+        <div style="font-size:13px;color:var(--text-dim);margin-bottom:10px;" data-t="dmSelectUser"></div>
+        <div id="dmUserList" class="empty" data-t="loading"></div>
+      </div>
+      <!-- نافذة المحادثة الخاصة -->
+      <div id="dmChatWrap" style="display:none;" class="card" style="padding:14px;">
+        <button class="dm-back" onclick="closeDm()">← <span data-t="dmBack"></span></button>
+        <div style="font-weight:600;font-size:14px;margin-bottom:10px;" id="dmWithName"></div>
+        <div class="chat-wrap">
+          <div class="chat-msgs" id="dmMsgs"><div class="empty" data-t="chatEmpty"></div></div>
+          <div class="chat-input-row">
+            <input id="dmInput" maxlength="300" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendDmMsg();}">
+            <button class="chat-send" onclick="sendDmMsg()">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── شاشة الكسب (إعلانات + سلسلة) ── -->
+  <div id="earnScreen" class="screen">
+    <h2 style="font-family:'Reem Kufi',sans-serif;color:var(--gold);font-size:19px;" data-t="ads"></h2>
+
+    <!-- السلسلة اليومية -->
+    <div class="card" style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-weight:700;font-size:15px;" data-t="streak"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:22px;color:var(--violet);" id="streakCount">0 🔥</div>
+      </div>
+      <!-- أيام السلسلة -->
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px;" id="streakDays"></div>
+      <button class="primary" id="streakBtn" onclick="doCheckIn()" style="margin-top:0;" data-t="streakCheckIn"></button>
+      <div id="streakMsg"></div>
+    </div>
+
+    <!-- الإعلانات -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <div style="font-weight:700;font-size:15px;" data-t="ads"></div>
+        <div id="adsBadge" class="pill gold" style="direction:ltr;">0/10</div>
+      </div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:14px;" id="adsSubLabel"></div>
+      <!-- شريط التقدم -->
+      <div style="background:var(--surface-2);border-radius:20px;height:8px;overflow:hidden;margin-bottom:14px;">
+        <div id="adsProgressBar" style="height:100%;background:linear-gradient(90deg,var(--gold),var(--violet));border-radius:20px;width:0%;transition:width .4s ease;"></div>
+      </div>
+      <button class="primary" id="adWatchBtn" onclick="doWatchAd()" style="margin-top:0;"></button>
+      <div id="adMsg" style="margin-top:8px;"></div>
+    </div>
+
+    <!-- العجلة هنا -->
+    <div class="section-h" data-t="game"></div>
+    <div class="card" style="text-align:center;">
+      <div class="wheel-wrap">
+        <div class="wheel-pointer">▼</div>
+        <div class="wheel" id="wheelEl"></div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:12px;">
+        <button class="primary" id="spinFreeBtn" onclick="doSpinNew('free')" style="flex:1;margin:0;font-size:13px;" data-t="spinFree"></button>
+        <button class="chip" id="spinPaidBtn" onclick="doSpinNew('paid')" style="flex:1;" data-t="spinPaid"></button>
+      </div>
+      <button class="ghost" id="spinBundleBtn" onclick="doSpinNew('bundle')" style="margin-top:6px;" data-t="spinBundle"></button>
+      <div class="spin-status" id="spinStatusNew"></div>
+      <div id="spinMsgNew" style="margin-top:6px;"></div>
+    </div>
+  </div>
+
+  <!-- ── شاشة المتجر ── -->
+  <div id="storeScreen" class="screen">
+    <h2 style="font-family:'Reem Kufi',sans-serif;color:var(--gold);font-size:19px;" data-t="store"></h2>
+    <div style="background:linear-gradient(135deg,rgba(240,169,62,.15),rgba(197,137,232,.1));border:1px solid rgba(240,169,62,.35);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;">
+      <div style="font-size:26px;">⚡</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--gold);" data-t="cbBannerTitle"></div>
+        <div style="font-size:11.5px;color:var(--text-dim);margin-top:2px;" data-t="cbBannerSub"></div>
+      </div>
+    </div>
+    <div class="store-tabs" id="storeTabs"></div>
+    <div id="storeItems"></div>
+    <div class="card" style="margin-bottom:14px;">
+      <div style="font-size:13px;color:var(--text-dim);margin-bottom:10px;" data-t="payMethod"></div>
+      <div style="display:flex;gap:6px;">
+        <button class="method-btn active" id="method-mastercard" onclick="selectMethod('mastercard')">💳 Mastercard</button>
+        <button class="method-btn" id="method-zain" onclick="selectMethod('zain')">📱 ZainCash</button>
+        <button class="method-btn" id="method-asia" onclick="selectMethod('asia')" data-t="localCards"></button>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <label data-t="accountId"></label>
+      <input id="storePlayerId" data-t-placeholder="accountIdPlaceholder">
+    </div>
+    <div id="storeSummaryWrap" style="display:none;">
+      <div class="store-summary">
+        <div class="store-summary-row"><span data-t="selectedPkg"></span><span id="summaryPkg">—</span></div>
+        <div class="store-summary-row"><span data-t="price"></span><span id="summaryPrice">—</span></div>
+        <div class="store-summary-row"><span data-t="cashbackEarn"></span><span id="summaryCb" style="color:var(--success);">—</span></div>
+        <div class="store-summary-row" style="border-top:1px dashed var(--border);padding-top:8px;margin-top:4px;"><span data-t="payVia"></span><span id="summaryMethod" style="color:var(--gold);">—</span></div>
+      </div>
+      <button class="primary" id="storeSubmitBtn" onclick="submitStoreOrder()" data-t="confirmOrder"></button>
+      <div id="storeMsg"></div>
+    </div>
+    <div class="section-h" data-t="cbHistory"></div>
+    <div class="card"><div id="cbHistoryList" class="empty" data-t="loading"></div></div>
+  </div>
+
+  <div class="navbar">
+    <button class="navitem active" data-screen="home"   onclick="showScreen('home')">  <span class="ic">🏠</span><span data-t="home"></span></button>
+    <button class="navitem"        data-screen="tasks"  onclick="showScreen('tasks')"> <span class="ic">✅</span><span data-t="tasks"></span></button>
+    <button class="navitem"        data-screen="earn"   onclick="showScreen('earn')">  <span class="ic">🎬</span><span data-t="ads"></span></button>
+    <button class="navitem"        data-screen="store"  onclick="showScreen('store')"> <span class="ic">⚡</span><span data-t="store"></span></button>
+    <button class="navitem"        data-screen="more"   onclick="showScreen('more')">  <span class="ic">☰</span><span data-t="more"></span></button>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://tphkhqnomgcfvevpaksn.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_kX1msV60rPdz8U2t_9UjOA_hHd5ZmD9';
+const WHEEL_AMOUNTS = [10,20,50,10,100,20,10,500];
+
+const T = {
+  ar: { tagline:'اربح نقاط، بدّلها بمكافآت حقيقية', signIn:'تسجيل الدخول', signUp:'إنشاء حساب', emailLabel:'البريد الإلكتروني', passwordLabel:'كلمة المرور', referralCodeOptional:'كود إحالة (اختياري)', home:'الرئيسية', tasks:'المهام', rewards:'المكافآت', game:'العجلة', more:'المزيد', wallet:'المحفظة', vault:'الخزنة', referrals:'الإحالات', settings:'الإعدادات', points:'نقاطك', level:'المستوى', yourReferralCode:'كود الإحالة الخاص فيك', copy:'نسخ', copied:'تم النسخ ✓', claim:'أكمل المهمة', claimed:'قيد المراجعة', redeem:'استبدال', enterPlayerId:'معرّف حسابك باللعبة', confirmRedeem:'تأكيد', redeemVipCode:'كود اشتراك VIP', signOut:'تسجيل الخروج', noTasks:'ما فيه مهام متاحة حاليًا', noRewards:'ما فيه مكافآت متاحة حاليًا', referredBy:'دخلت عبر إحالة', of:'من', myInvites:'الأشخاص اللي دعوتهم', noInvites:'ما دعيت حد بعد — شارك كودك!', invalidCreds:'بيانات الدخول غير صحيحة', genericError:'صار خطأ، حاول مرة ثانية', loading:'تحميل...', insufficientPoints:'نقاطك غير كافية', bannedMsg:'حسابك موقوف حاليًا', taskLimit:'وصلت الحد الأقصى لهذه المهمة', alreadyClaimed:'مطالَب فيها من قبل', invalidVip:'كود غير صحيح أو مستخدم من قبل', vipSuccess:'تم تفعيل الكود بنجاح 🎉', redeemSuccess:'تم إرسال طلب الاستبدال، بانتظار المراجعة', spinNow:'أدر العجلة 🎡', spinCooldown:'العجلة التالية بعد', spinWin:'ربحت', noWallet:'ما فيه حركات نقاط بعد', lockAmount:'عدد النقاط المراد تجميدها', days:'يوم', vaultPerk:'يمنحك حالة VIP طول مدة التجميد. النقاط ترجعلك كاملة (بدون زيادة) بعد المدة.', lockNow:'جمّد النقاط', activeLockLabel:'مجمّد الآن', unlocksOn:'يفتح بتاريخ', claimUnlock:'اسحب النقاط', notReadyYet:'لسه مو جاهز', noActiveLock:"ما عندك تجميد نشط حاليًا", lockSuccess:'تم تجميد النقاط ✓', claimedSuccess:'تم سحب النقاط ✓', leaderboard:'الصدارة', yourLeague:'رتبتك الحالية', leagueRules:'أعلى 20 هالأسبوع يطلعون رتبة، 21-40 يثبتون، الباقي ينزلون — يتجدد كل اثنين', you:'أنت', noLeaderboard:'ما فيه نشاط هالأسبوع بعد — كون أول واحد!',
+    or:'أو', noAccount:'ليس لديك حساب؟ ', guestLogin:'دخول كزائر',
+    chat:'الشات', chatConnecting:'جاري الاتصال...', chatConnected:'متصل ✓', chatEmpty:'لا توجد رسائل — كن أول من يكتب!', chatPlaceholder:'اكتب رسالتك...', chatHint:'الرسائل مرئية للجميع · 300 حرف', chatDeleted:'[تم حذف الرسالة]', chatBanned:'حسابك موقوف', chatTooFast:'انتظر قليلاً', chatRateLimit:'تجاوزت الحد — انتظر دقيقة',
+    chatPublic:'💬 عام', chatPrivate:'🔒 خاص', dmSelectUser:'اختر شخصاً للمحادثة', dmBack:'رجوع', dmPlaceholder:'رسالة خاصة...',
+    store:'المتجر', cbBannerTitle:'كاش باك 100 نقطة لكل 1$', cbBannerSub:'اشحن لعبتك واحصل على نقاط مجانية مع كل دفعة',
+    payMethod:'طريقة الدفع', localCards:'كارتات محلي', accountId:'معرّف حسابك / رقم الهاتف', accountIdPlaceholder:'ID اللعبة أو رقم الهاتف',
+    selectedPkg:'الباقة', price:'السعر', cashbackEarn:'كاش باك', payVia:'الدفع عبر',
+    confirmOrder:'تأكيد الطلب ⚡', cbHistory:'سجل الكاش باك', noCbHistory:'ما سويت عمليات شحن بعد',
+    storeOrderSent:'تم إرسال طلبك! ستحصل على النقاط بعد تأكيد الدفع 🎉',
+    storeSelectPkg:'اختر باقة أولاً', storeEnterId:'أدخل معرّف حسابك',
+    privacyTitle:'سياسة الخصوصية وشروط الاستخدام',
+    privacyBody:'نحن في GameRewards نحترم خصوصيتك. نجمع بياناتك (الإيميل، النقاط، سجل النشاط) لتقديم الخدمة وتحسينها فقط.',
+    privacyBody2:'لا نبيع بياناتك لأي طرف ثالث. نقاطك ومكافآتك ملكك، ويمكنك طلب حذف حسابك في أي وقت.',
+    privacyBody3:'باستخدام التطبيق، توافق على شروط الاستخدام وسياسة الخصوصية. الخدمة مخصصة للمستخدمين فوق 13 سنة.',
+    privacyAccept:'أوافق وأكمل', privacyRead:'قراءة كاملة', bySigningUp:'بالتسجيل أنت توافق على ', privacyPolicy:'سياسة الخصوصية',
+    forgotTitle:'نسيت كلمة المرور', forgotBody:'أدخل إيميلك وسنرسل لك رابط إعادة تعيين كلمة المرور.',
+    forgotSend:'إرسال الرابط', forgotOk:'تم الإرسال! تحقق من بريدك الإلكتروني ✉', cancel:'إلغاء', forgotPassword:'نسيت كلمة المرور؟',
+    streak:'السلسلة اليومية', streakDay:'اليوم', streakCurrent:'سلسلتك الحالية', streakCheckIn:'تسجيل حضور اليوم ✓', streakAlready:'سجّلت حضورك اليوم ✓', streakBroken:'انقطعت السلسلة — تبدأ من اليوم 1',
+    streakRewards:'مكافآت السلسلة', streakBonus:'🎁 صندوق الحظ',
+    ads:'الإعلانات', adsWatch:'شاهد إعلاناً (+{n} نقطة)', adsToday:'مشاهدات اليوم', adsRemaining:'متبقي', adsCooldown:'انتظر {n} ثانية', adsLimit:'وصلت الحد اليومي',
+    adWatching:'جاري تحميل الإعلان...', adDone:'تم! ربحت {n} نقطة 🎉',
+    spinFree:'تدوير مجاني 🎡', spinPaid:'تدوير (20 نقطة)', spinBundle:'حزمة 5 تدويرات (90 نقطة)',
+    spinFreeUsed:'استخدمت التدوير المجاني اليوم', spinInsufficient:'نقاطك غير كافية',
+    spinLoss:'للأسف خسرت هذه المرة 😅', spinWinNew:'ربحت {n} نقطة 🎉' },
+  en: { tagline:'Earn points, redeem real rewards', signIn:'Sign In', signUp:'Sign Up', emailLabel:'Email', passwordLabel:'Password', referralCodeOptional:'Referral code (optional)', home:'Home', tasks:'Tasks', rewards:'Rewards', game:'Wheel', more:'More', wallet:'Wallet', vault:'Vault', referrals:'Referrals', settings:'Settings', points:'Your points', level:'Level', yourReferralCode:'Your referral code', copy:'Copy', copied:'Copied ✓', claim:'Complete', claimed:'In review', redeem:'Redeem', enterPlayerId:'Your in-game player ID', confirmRedeem:'Confirm', redeemVipCode:'VIP code', signOut:'Sign out', noTasks:'No tasks available right now', noRewards:'No rewards available right now', referredBy:'Joined via referral', of:'of', myInvites:'People you invited', noInvites:"You haven't invited anyone yet — share your code!", invalidCreds:'Invalid email or password', genericError:'Something went wrong, try again', loading:'Loading...', insufficientPoints:'Not enough points', bannedMsg:'Your account is currently suspended', taskLimit:'This task has reached its limit', alreadyClaimed:'Already claimed', invalidVip:'Invalid or already-used code', vipSuccess:'Code activated 🎉', redeemSuccess:'Redemption request sent, pending review', spinNow:'Spin the wheel 🎡', spinCooldown:'Next spin in', spinWin:'You won', noWallet:'No point activity yet', lockAmount:'Points to lock', days:'days', vaultPerk:'Grants VIP status for the lock period. Points return in full (no bonus) when it ends.', lockNow:'Lock points', activeLockLabel:'Currently locked', unlocksOn:'Unlocks on', claimUnlock:'Withdraw points', notReadyYet:'Not ready yet', noActiveLock:"You don't have an active lock", lockSuccess:'Points locked ✓', claimedSuccess:'Points withdrawn ✓', leaderboard:'Leaderboard', yourLeague:'Your current league', leagueRules:'Top 20 this week move up a league, 21-40 stay, rest move down — resets every Monday', you:'You', noLeaderboard:'No activity yet this week — be the first!',
+    or:'or', noAccount:"Don't have an account? ", guestLogin:'Guest login',
+    chat:'Chat', chatConnecting:'Connecting...', chatConnected:'Connected ✓', chatEmpty:'No messages yet — say hello!', chatPlaceholder:'Type a message...', chatHint:'Messages visible to everyone · 300 chars', chatDeleted:'[Message deleted]', chatBanned:'Your account is suspended', chatTooFast:'Please wait before sending again', chatRateLimit:'Too many messages — wait a minute',
+    chatPublic:'💬 Public', chatPrivate:'🔒 Private', dmSelectUser:'Select someone to chat with', dmBack:'Back', dmPlaceholder:'Private message...',
+    store:'Store', cbBannerTitle:'100 pts cashback per $1 spent', cbBannerSub:'Top up your game and earn free points with every payment',
+    payMethod:'Payment method', localCards:'Local cards', accountId:'Account ID / Phone', accountIdPlaceholder:'Game ID or phone number',
+    selectedPkg:'Package', price:'Price', cashbackEarn:'Cashback', payVia:'Pay via',
+    confirmOrder:'Confirm order ⚡', cbHistory:'Cashback history', noCbHistory:'No top-ups yet',
+    storeOrderSent:'Order sent! Points will be credited after payment confirmation 🎉',
+    storeSelectPkg:'Please select a package first', storeEnterId:'Please enter your account ID',
+    privacyTitle:'Privacy Policy & Terms of Use',
+    privacyBody:'At GameRewards, we respect your privacy. We collect your data (email, points, activity history) solely to provide and improve the service.',
+    privacyBody2:'We never sell your data to third parties. Your points and rewards belong to you, and you can request account deletion at any time.',
+    privacyBody3:'By using the app, you agree to our Terms of Use and Privacy Policy. The service is intended for users aged 13 and above.',
+    privacyAccept:'I agree & continue', privacyRead:'Read full policy', bySigningUp:'By signing up you agree to our ', privacyPolicy:'Privacy Policy',
+    forgotTitle:'Forgot Password', forgotBody:'Enter your email and we\'ll send you a password reset link.',
+    forgotSend:'Send reset link', forgotOk:'Sent! Check your email ✉', cancel:'Cancel', forgotPassword:'Forgot password?',
+    streak:'Daily Streak', streakDay:'Day', streakCurrent:'Your current streak', streakCheckIn:'Check in today ✓', streakAlready:'Already checked in today ✓', streakBroken:'Streak reset — starting from Day 1',
+    streakRewards:'Streak rewards', streakBonus:'🎁 Lucky box',
+    ads:'Ads', adsWatch:'Watch an ad (+{n} pts)', adsToday:"Today's watches", adsRemaining:'remaining', adsCooldown:'Wait {n} seconds', adsLimit:'Daily limit reached',
+    adWatching:'Loading ad...', adDone:'Done! You earned {n} pts 🎉',
+    spinFree:'Free spin 🎡', spinPaid:'Spin (20 pts)', spinBundle:'5-spin bundle (90 pts)',
+    spinFreeUsed:'Free spin already used today', spinInsufficient:'Not enough points',
+    spinLoss:'Better luck next time 😅', spinWinNew:'You won {n} pts 🎉' }
+};
+let lang = 'ar';
+let authMode = 'signin';
+let session = null, profile = null;
+let tasksData = [], myClaims = {}, rewardsData = [];
+
+function t(k) { return T[lang][k] || k; }
+function applyLang() {
+  document.getElementById('htmlRoot').setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+  document.getElementById('htmlRoot').setAttribute('lang', lang);
+  document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t(el.getAttribute('data-t')); });
+  document.querySelectorAll('[data-t-placeholder]').forEach(el => { el.placeholder = t(el.getAttribute('data-t-placeholder')); });
+  ['langAr','langEn','langArApp','langEnApp'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const isAr = id === 'langAr' || id === 'langArApp';
+    el.classList.toggle('active', lang === (isAr ? 'ar' : 'en'));
+  });
+  if (document.getElementById('authSubmitBtn'))
+    document.getElementById('authSubmitBtn').textContent = t(authMode === 'signin' ? 'signIn' : 'signUp');
+}
+function setLang(l) { lang = l; applyLang(); if (session) renderAll(); }
+function setAuthMode(m) {
+  authMode = m;
+  document.getElementById('modeSignin').classList.toggle('active', m==='signin');
+  document.getElementById('modeSignup').classList.toggle('active', m==='signup');
+  document.getElementById('refCodeWrap').style.display = m === 'signup' ? 'block' : 'none';
+  document.getElementById('forgotBtn').style.display   = m === 'signin'  ? 'block' : 'none';
+  document.getElementById('authSubmitBtn').textContent = t(m === 'signin' ? 'signIn' : 'signUp');
+  const title = document.getElementById('authCardTitle');
+  if (title) title.textContent = t(m === 'signin' ? 'signIn' : 'signUp');
+}
+function toggleAuthPwd() {
+  const inp = document.getElementById('authPassword');
+  const ico = document.getElementById('authEyeIcon');
+  if (inp.type==='password') { inp.type='text'; ico.className='ti ti-eye-off'; }
+  else { inp.type='password'; ico.className='ti ti-eye'; }
+}
+async function handleGuestLogin() {
+  showMsg('authMsg', lang==='ar' ? 'الدخول كزائر غير متاح بعد' : 'Guest login coming soon', false);
+}
+function showScreen(name) {
+  ['home','tasks','rewards','game','leaderboard','chat','store','more','earn'].forEach(s => {
+    const el = document.getElementById(s+'Screen');
+    if (el) el.classList.toggle('active', s===name);
+    document.querySelector(`.navitem[data-screen="${s}"]`)?.classList.toggle('active', s===name);
+  });
+  if (name==='chat')  { switchChatTab('public'); }
+  if (name==='store') { initStore(); loadCbHistory(); }
+  if (name==='earn')  { loadEarnScreen(); }
+}
+function openModal(id)  { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function showPrivacy()  { openModal('privacyModal'); }
+
+// قبول سياسة الخصوصية
+async function acceptPrivacy() {
+  closeModal('privacyModal');
+  if (!session) return;
+  await api('/rest/v1/policy_acceptances', {
+    method: 'POST',
+    headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify({ user_id: session.user.id, version: '1.0' })
+  });
+}
+
+// forgot password
+async function sendForgotPassword() {
+  const email = document.getElementById('forgotEmail').value.trim();
+  if (!email) return;
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  if (res.ok) {
+    showMsg('forgotMsg', t('forgotOk'), true);
+    setTimeout(() => closeModal('forgotModal'), 3000);
+  } else {
+    showMsg('forgotMsg', t('genericError'), false);
+  }
+}
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function showMsg(elId, text, ok) { document.getElementById(elId).innerHTML = `<div class="msg ${ok ? 'ok':'err'}">${escapeHtml(text)}</div>`; }
+
+async function api(path, opts = {}) {
+  const res = await fetch(`${SUPABASE_URL}${path}`, { ...opts, headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${session.access_token}`, 'Content-Type':'application/json', ...opts.headers } });
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, data };
+}
+
+async function handleAuthSubmit() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const refCode = document.getElementById('authRefCode').value.trim();
+  if (!email || !password) return;
+  document.getElementById('authSubmitBtn').disabled = true;
+  document.getElementById('authMsg').innerHTML = '';
+  try {
+    const endpoint = authMode === 'signup' ? '/auth/v1/signup' : '/auth/v1/token?grant_type=password';
+    const res = await fetch(`${SUPABASE_URL}${endpoint}`, { method:'POST', headers:{apikey:SUPABASE_ANON_KEY,'Content-Type':'application/json'}, body: JSON.stringify({email,password}) });
+    const data = await res.json();
+    if (!res.ok || !data.access_token) {
+      showMsg('authMsg', res.status === 400 ? t('invalidCreds') : t('genericError'), false);
+    } else {
+      session = { access_token: data.access_token, user: data.user };
+      if (authMode === 'signup' && refCode) { await api('/rest/v1/rpc/create_referral', { method:'POST', body: JSON.stringify({p_referral_code: refCode}) }); }
+      document.getElementById('authScreen').classList.remove('active');
+      document.getElementById('appShell').style.display = 'block';
+      initAdMob();
+      await loadProfile();
+      renderAll();
+    }
+  } catch (err) { showMsg('authMsg', t('genericError'), false); }
+  document.getElementById('authSubmitBtn').disabled = false;
+}
+
+// showScreen defined above
+
+async function loadProfile() {
+  const r = await api(`/rest/v1/profiles?select=*&id=eq.${session.user.id}`);
+  if (r.ok && r.data[0]) profile = r.data[0];
+}
+
+function renderAll() {
+  applyLang();
+  if (profile) {
+    document.getElementById('homePoints').textContent = profile.points ?? 0;
+    document.getElementById('homeLevelRing').textContent = profile.level ?? 1;
+    document.getElementById('homeRefCode').textContent = profile.referral_code || '—';
+    document.getElementById('refScreenCode').textContent = profile.referral_code || '—';
+    const effectiveVip = profile.vip && (!profile.vip_until || new Date(profile.vip_until) > new Date());
+    document.getElementById('vipPill').style.display = effectiveVip ? 'inline-block' : 'none';
+  }
+  loadTasks(); loadRewards(); loadReferrals(); loadWallet(); loadVault(); loadLeaderboard();
+}
+
+function copyRefCode(btn) {
+  if (!profile?.referral_code) return;
+  navigator.clipboard?.writeText(profile.referral_code);
+  btn.textContent = t('copied'); setTimeout(() => btn.textContent = t('copy'), 1500);
+}
+
+async function loadTasks() {
+  const [tr, cr] = await Promise.all([
+    api('/rest/v1/tasks?select=*&active=eq.true&order=id'),
+    api(`/rest/v1/task_claims?select=task_id,status&user_id=eq.${session.user.id}`)
+  ]);
+  if (!tr.ok) return;
+  tasksData = tr.data;
+  myClaims = {};
+  if (cr.ok) cr.data.forEach(c => myClaims[c.task_id] = c.status);
+  document.getElementById('tasksList').innerHTML = tasksData.length ? tasksData.map(x => {
+    const claim = myClaims[x.id];
+    const label = claim === 'pending' ? t('claimed') : claim === 'approved' ? '✓' : t('claim');
+    const disabled = !!claim;
+    return `<div class="item"><div class="item-row"><div><div class="item-title">${escapeHtml(x.name)}</div><div class="item-sub">+${x.reward} ${t('points').toLowerCase()}</div></div>
+      <button class="chip" ${disabled?'disabled style="opacity:.5"':''} onclick="claimTask(${x.id})">${label}</button></div>
+      <div id="taskMsg-${x.id}"></div></div>`;
+  }).join('') : `<div class="empty">${t('noTasks')}</div>`;
+}
+async function claimTask(id) {
+  const r = await api('/rest/v1/rpc/claim_task', { method:'POST', body: JSON.stringify({p_task_id:id}) });
+  if (r.ok) { myClaims[id] = 'pending'; loadTasks(); }
+  else {
+    const reason = String(r.data?.message || '');
+    const key = reason.includes('limit') ? 'taskLimit' : reason.includes('already') ? 'alreadyClaimed' : reason.includes('banned') ? 'bannedMsg' : 'genericError';
+    showMsg(`taskMsg-${id}`, t(key), false);
+  }
+}
+
+async function loadRewards() {
+  const r = await api('/rest/v1/rewards?select=*&active=eq.true&order=points');
+  if (!r.ok) return;
+  rewardsData = r.data;
+  document.getElementById('rewardsList').innerHTML = rewardsData.length ? `<div class="card" style="padding:12px;">` + rewardsData.map(x => `
+    <div class="item">
+      ${x.image_url ? `<img class="reward-img" src="${escapeHtml(x.image_url)}" alt="">` : `<div class="reward-img-placeholder">🎁</div>`}
+      <div class="item-row"><div><div class="item-title">${escapeHtml(x.name)}</div>${x.description ? `<div class="item-sub">${escapeHtml(x.description)}</div>` : ''}</div>
+      <span class="pill gold">${x.points}</span></div>
+      <button class="ghost" onclick="toggleRedeemForm(${x.id})">${t('redeem')}</button>
+      <div id="redeemForm-${x.id}" style="display:none" class="redeem-form">
+        <input id="playerId-${x.id}" placeholder="${t('enterPlayerId')}">
+        <button class="primary" onclick="doRedeem(${x.id})">${t('confirmRedeem')}</button>
+        <div id="redeemMsg-${x.id}"></div>
+      </div>
+    </div>`).join('') + `</div>` : `<div class="card"><div class="empty">${t('noRewards')}</div></div>`;
+}
+function toggleRedeemForm(id) {
+  const el = document.getElementById(`redeemForm-${id}`);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+async function doRedeem(id) {
+  const reward = rewardsData.find(x => x.id === id);
+  const playerId = document.getElementById(`playerId-${id}`).value.trim();
+  if (!playerId) return;
+  const r = await api('/rest/v1/rpc/create_redemption', { method:'POST', body: JSON.stringify({ p_game: reward.name, p_product: reward.name, p_cost: reward.points, p_player_id: playerId }) });
+  if (r.ok) { showMsg(`redeemMsg-${id}`, t('redeemSuccess'), true); await loadProfile(); renderAll(); }
+  else {
+    const reason = String(r.data?.message || '');
+    showMsg(`redeemMsg-${id}`, t(reason.includes('banned') ? 'bannedMsg' : 'insufficientPoints'), false);
+  }
+}
+
+async function loadReferrals() {
+  const [refr, refd] = await Promise.all([
+    api(`/rest/v1/referrals?select=*&referrer_id=eq.${session.user.id}`),
+    api(`/rest/v1/referrals?select=*&referred_id=eq.${session.user.id}`)
+  ]);
+  if (refd.ok && refd.data[0]) {
+    document.getElementById('referredByCard').style.display = 'block';
+    const r = refd.data[0];
+    document.getElementById('referredByProgress').innerHTML = `<span class="pill violet">${r.completed_ads}/10 ${t('of')} 10</span>`;
+  }
+  if (refr.ok) {
+    if (!refr.data.length) {
+      document.getElementById('invitesList').innerHTML = `<div class="empty">${t('noInvites')}</div>`;
+    } else {
+      const ids = refr.data.map(r => r.referred_id);
+      const pr = await api(`/rest/v1/profiles?select=id,email&id=in.(${ids.join(',')})`);
+      const emailById = {};
+      if (pr.ok) pr.data.forEach(p => emailById[p.id] = p.email);
+      document.getElementById('invitesList').innerHTML = refr.data.map(r => `
+        <div class="item item-row"><span class="item-sub" style="direction:ltr">${escapeHtml(emailById[r.referred_id] || r.referred_id.slice(0,8)+'…')}</span><span class="pill ${r.status==='rewarded'?'gold':''}">${r.completed_ads}/10</span></div>
+      `).join('');
+    }
+  }
+}
+
+async function loadLeaderboard() {
+  document.getElementById('myLeagueTier').textContent = profile?.league_tier ?? 1;
+  const r = await api('/rest/v1/rpc/get_weekly_leaderboard', { method:'POST', body:'{}' });
+  if (!r.ok || !r.data.length) { document.getElementById('leaderboardList').innerHTML = `<div class="empty">${t('noLeaderboard')}</div>`; return; }
+  document.getElementById('leaderboardList').innerHTML = r.data.map(row => {
+    const mine = row.display_name === profile?.referral_code;
+    const zone = row.rnk <= 20 ? 'gold' : row.rnk > 40 ? 'bad' : '';
+    return `<div class="item item-row" style="${mine ? 'background:rgba(240,169,62,.08);border-radius:8px;padding:10px;' : ''}">
+      <div class="item-row" style="gap:10px;">
+        <span class="pill ${zone}" style="min-width:26px;text-align:center;">${row.rnk}</span>
+        <span class="item-title" style="direction:ltr;">${escapeHtml(row.display_name)}${mine ? ' · ' + t('you') : ''}</span>
+      </div>
+      <span class="pill gold" style="direction:ltr">${row.weekly_points}</span>
+    </div>`;
+  }).join('');
+}
+
+async function loadWallet() {
+  const r = await api(`/rest/v1/transactions?select=*&user_id=eq.${session.user.id}&order=created_at.desc&limit=30`);
+  if (!r.ok) return;
+  document.getElementById('walletList').innerHTML = r.data.length ? r.data.map(x => `
+    <div class="item item-row">
+      <div><div class="item-title" style="font-size:13.5px;">${escapeHtml(x.reason || x.source)}</div><div class="item-sub">${new Date(x.created_at).toLocaleString(lang==='ar'?'ar':'en-GB')}</div></div>
+      <span class="pill ${x.amount >= 0 ? 'gold':'bad'}" style="direction:ltr">${x.amount >= 0 ? '+':''}${x.amount}</span>
+    </div>`).join('') : `<div class="empty">${t('noWallet')}</div>`;
+}
+
+let vaultDuration = 30;
+function setVaultDuration(d) {
+  vaultDuration = d;
+  document.getElementById('dur30').classList.toggle('active', d===30);
+  document.getElementById('dur90').classList.toggle('active', d===90);
+}
+async function loadVault() {
+  const r = await api(`/rest/v1/point_locks?select=*&user_id=eq.${session.user.id}&status=eq.active&order=locked_at.desc`);
+  const el = document.getElementById('vaultActive');
+  const form = document.getElementById('vaultForm');
+  if (r.ok && r.data.length) {
+    form.style.display = 'none';
+    el.innerHTML = r.data.map(l => {
+      const ready = new Date(l.unlock_at) <= new Date();
+      return `<div class="item">
+        <div class="item-row"><span class="item-title">${t('activeLockLabel')}</span><span class="pill gold" style="direction:ltr">${l.points_locked}</span></div>
+        <div class="item-sub">${t('unlocksOn')} ${new Date(l.unlock_at).toLocaleDateString(lang==='ar'?'ar':'en-GB')}</div>
+        <button class="primary" ${ready?'':'disabled'} onclick="claimLock(${l.id})">${ready ? t('claimUnlock') : t('notReadyYet')}</button>
+      </div>`;
+    }).join('');
+  } else {
+    form.style.display = 'block';
+    el.innerHTML = '';
+  }
+}
+async function lockPoints() {
+  const points = Number(document.getElementById('vaultPoints').value);
+  if (!points || points <= 0) return;
+  const r = await api('/rest/v1/rpc/create_point_lock', { method:'POST', body: JSON.stringify({p_points: points, p_duration_days: vaultDuration}) });
+  if (r.ok) { showMsg('vaultMsg', t('lockSuccess'), true); document.getElementById('vaultPoints').value=''; await loadProfile(); renderAll(); }
+  else {
+    const reason = String(r.data?.message || '');
+    showMsg('vaultMsg', t(reason.includes('banned') ? 'bannedMsg' : 'insufficientPoints'), false);
+  }
+}
+async function claimLock(id) {
+  const r = await api('/rest/v1/rpc/claim_point_lock', { method:'POST', body: JSON.stringify({p_lock_id: id}) });
+  if (r.ok) { await loadProfile(); renderAll(); }
+}
+
+async function refreshSpinStatus() {
+  const r = await api(`/rest/v1/transactions?select=created_at&user_id=eq.${session.user.id}&source=eq.spin_wheel&order=created_at.desc&limit=1`);
+  const btn = document.getElementById('spinBtn');
+  const status = document.getElementById('spinStatus');
+  if (r.ok && r.data[0]) {
+    const last = new Date(r.data[0].created_at);
+    const nextAvailable = new Date(last.getTime() + 24*3600*1000);
+    if (nextAvailable > new Date()) {
+      btn.disabled = true;
+      const hrs = Math.ceil((nextAvailable - new Date()) / 3600000);
+      status.textContent = `${t('spinCooldown')} ${hrs}h`;
+      return;
+    }
+  }
+  btn.disabled = false;
+  status.textContent = '';
+}
+
+async function doSpin() {
+  const btn = document.getElementById('spinBtn');
+  btn.disabled = true;
+  document.getElementById('spinMsg').innerHTML = '';
+  const r = await api('/rest/v1/rpc/spin_wheel', { method:'POST', body:'{}' });
+  if (!r.ok) {
+    showMsg('spinMsg', t(String(r.data?.message||'').includes('banned') ? 'bannedMsg' : 'genericError'), false);
+    refreshSpinStatus();
+    return;
+  }
+  const row = Array.isArray(r.data) ? r.data[0] : r.data;
+  const idx = row.prize_index, amount = row.prize_amount;
+  const wheel = document.getElementById('wheelEl');
+  const currentRotation = (parseFloat(wheel.dataset.rot) || 0);
+  const target = currentRotation + 1800 + (360 - (idx*45 + 22.5));
+  wheel.style.transform = `rotate(${target}deg)`;
+  wheel.dataset.rot = target;
+  setTimeout(async () => {
+    showMsg('spinMsg', `${t('spinWin')} ${amount} 🎉`, true);
+    await loadProfile(); renderAll();
+  }, 3600);
+}
+
+async function redeemVip() {
+  const code = document.getElementById('vipCodeInput').value.trim();
+  if (!code) return;
+  const r = await api('/rest/v1/rpc/redeem_vip_code', { method:'POST', body: JSON.stringify({p_code: code}) });
+  if (r.ok) { showMsg('vipMsg', t('vipSuccess'), true); document.getElementById('vipCodeInput').value=''; await loadProfile(); renderAll(); }
+  else { showMsg('vipMsg', t('invalidVip'), false); }
+}
+
+function signOutApp() {
+  if (session?.access_token) fetch(`${SUPABASE_URL}/auth/v1/logout`, { method:'POST', headers:{apikey:SUPABASE_ANON_KEY, Authorization:`Bearer ${session.access_token}`} }).catch(()=>{});
+  session = null; profile = null;
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('authScreen').classList.add('active');
+  document.getElementById('authEmail').value=''; document.getElementById('authPassword').value='';
+}
+
+// ─── Splash Screen ────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  applyLang();
+  setTimeout(() => {
+    document.getElementById('splashScreen').classList.add('hide');
+    setTimeout(() => document.getElementById('splashScreen').style.display = 'none', 500);
+  }, 2000);
+});
+
+// ─── متجر الشحن ───────────────────────────────────────────────
+const STORE_CATS = [
+  { id:'ff',     label:{ ar:'فري فاير 🔥', en:'Free Fire 🔥' } },
+  { id:'pubg',   label:{ ar:'ببجي 🎯',     en:'PUBG 🎯' } },
+  { id:'ludo',   label:{ ar:'يلا لودو 🎲', en:'Yalla Ludo 🎲' } },
+  { id:'mobile', label:{ ar:'رصيد الهاتف 📱', en:'Mobile Credit 📱' } }
+];
+const STORE_ITEMS = {
+  ff:     [{ name:{ar:'100 جوهرة', en:'100 Diamonds'}, iqd:1500,  usd:1   },
+           { name:{ar:'310 جوهرة', en:'310 Diamonds'}, iqd:4500,  usd:3   },
+           { name:{ar:'530 جوهرة', en:'530 Diamonds'}, iqd:7500,  usd:5   },
+           { name:{ar:'1060 جوهرة',en:'1060 Diamonds'},iqd:14500, usd:9.6 }],
+  pubg:   [{ name:{ar:'60 UC',    en:'60 UC'},    iqd:1600,  usd:1.1  },
+           { name:{ar:'310 UC',   en:'310 UC'},   iqd:7000,  usd:4.6  },
+           { name:{ar:'625 UC',   en:'625 UC'},   iqd:14000, usd:9.3  },
+           { name:{ar:'1875 UC',  en:'1875 UC'},  iqd:40000, usd:26.5 }],
+  ludo:   [{ name:{ar:'810 ماسة',  en:'810 Diamonds'}, iqd:3500,  usd:2.3 },
+           { name:{ar:'2280 ماسة', en:'2280 Diamonds'},iqd:8000,  usd:5.3 },
+           { name:{ar:'5000 ماسة', en:'5000 Diamonds'},iqd:16500, usd:11  }],
+  mobile: [{ name:{ar:'رصيد 5,000 د.ع',  en:'IQD 5,000 Credit'},  iqd:6500,  usd:4.3  },
+           { name:{ar:'رصيد 10,000 د.ع', en:'IQD 10,000 Credit'}, iqd:13000, usd:8.6  },
+           { name:{ar:'رصيد 25,000 د.ع', en:'IQD 25,000 Credit'}, iqd:31000, usd:20.6 }]
+};
+const METHOD_LABELS = { mastercard:'💳 Mastercard', zain:'📱 ZainCash', asia:{ar:'🏦 كارتات محلي', en:'🏦 Local cards'} };
+
+let storeCat = 'ff', storeSelIdx = null, storeMethod = 'mastercard', storeInited = false;
+
+function initStore() {
+  document.getElementById('storeTabs').innerHTML = STORE_CATS.map(c =>
+    `<button class="store-tab${c.id===storeCat?' active':''}" onclick="selectCat('${c.id}')">${c.label[lang]}</button>`
+  ).join('');
+  renderStoreItems();
+  const asiaBtn = document.getElementById('method-asia');
+  if (asiaBtn) asiaBtn.textContent = METHOD_LABELS.asia[lang];
+  const inp = document.getElementById('storePlayerId');
+  if (inp) inp.placeholder = t('accountIdPlaceholder');
+}
+
+function selectCat(id) {
+  storeCat = id; storeSelIdx = null;
+  document.querySelectorAll('.store-tab').forEach((b,i) => b.classList.toggle('active', STORE_CATS[i].id===id));
+  renderStoreItems(); hideSummary();
+}
+
+function renderStoreItems() {
+  document.getElementById('storeItems').innerHTML = (STORE_ITEMS[storeCat]||[]).map((item,idx) => {
+    const cb = Math.round(item.usd*100);
+    return `<div class="store-item${storeSelIdx===idx?' selected':''}" onclick="selectItem(${idx})">
+      <div class="store-item-row">
+        <span class="store-item-name">${escapeHtml(item.name[lang])}</span>
+        <span class="store-item-price">${item.iqd.toLocaleString('ar')} د.ع</span>
+      </div>
+      <div class="store-item-cb">⚡ +${cb} ${lang==='ar'?'نقطة كاش باك':'pts cashback'} · $${item.usd}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectItem(idx) { storeSelIdx=idx; renderStoreItems(); updateSummary(); }
+
+function selectMethod(m) {
+  storeMethod=m;
+  ['mastercard','zain','asia'].forEach(id => document.getElementById('method-'+id).classList.toggle('active', id===m));
+  if (storeSelIdx!==null) updateSummary();
+}
+
+function updateSummary() {
+  const item = STORE_ITEMS[storeCat][storeSelIdx];
+  if (!item) return hideSummary();
+  const cb = Math.round(item.usd*100);
+  document.getElementById('summaryPkg').textContent   = item.name[lang];
+  document.getElementById('summaryPrice').textContent = `${item.iqd.toLocaleString('ar')} د.ع ($${item.usd})`;
+  document.getElementById('summaryCb').textContent    = `+${cb} ${lang==='ar'?'نقطة':'pts'}`;
+  document.getElementById('summaryMethod').textContent = storeMethod==='asia' ? METHOD_LABELS.asia[lang] : METHOD_LABELS[storeMethod];
+  document.getElementById('storeSummaryWrap').style.display='block';
+}
+
+function hideSummary() { document.getElementById('storeSummaryWrap').style.display='none'; }
+
+async function submitStoreOrder() {
+  if (storeSelIdx===null) { showMsg('storeMsg', t('storeSelectPkg'), false); return; }
+  const playerId = document.getElementById('storePlayerId').value.trim();
+  if (!playerId) { showMsg('storeMsg', t('storeEnterId'), false); return; }
+  const item = STORE_ITEMS[storeCat][storeSelIdx];
+  const btn  = document.getElementById('storeSubmitBtn');
+  btn.disabled = true;
+  const cat = STORE_CATS.find(c=>c.id===storeCat);
+  const r = await api('/rest/v1/store_orders', {
+    method:'POST',
+    headers:{ Prefer:'return=minimal' },
+    body: JSON.stringify({
+      user_id: session.user.id, game_id: storeCat,
+      game_name: cat?.label['ar']||storeCat,
+      pkg_amount: item.name['ar'], pkg_unit: storeCat==='ff'?'جوهرة':storeCat==='pubg'?'UC':storeCat==='ludo'?'ماسة':'رصيد',
+      amount_iqd: item.iqd, amount_usd: item.usd,
+      payment_method: storeMethod, player_id: playerId,
+      cashback_pts: Math.round(item.usd*100), status:'pending'
+    })
+  });
+  if (r.ok) {
+    showMsg('storeMsg', t('storeOrderSent'), true);
+    document.getElementById('storePlayerId').value='';
+    storeSelIdx=null; renderStoreItems(); hideSummary();
+    loadCbHistory(); loadProfile(); renderAll();
+  } else { showMsg('storeMsg', t('genericError'), false); }
+  btn.disabled=false;
+}
+
+async function loadCbHistory() {
+  const r = await api(`/rest/v1/cashback_transactions?select=*&user_id=eq.${session.user.id}&order=created_at.desc&limit=20`);
+  const el = document.getElementById('cbHistoryList');
+  if (!r.ok||!Array.isArray(r.data)||!r.data.length) { el.innerHTML=`<div class="empty">${t('noCbHistory')}</div>`; return; }
+  const GL = {ff:{ar:'فري فاير',en:'Free Fire'},pubg:{ar:'ببجي',en:'PUBG'},ludo:{ar:'يلا لودو',en:'Yalla Ludo'},mobile:{ar:'رصيد الهاتف',en:'Mobile Credit'}};
+  el.innerHTML = r.data.map(x => {
+    const game=GL[x.game_category]?.[lang]||x.game_category||'—';
+    const date=new Date(x.created_at).toLocaleDateString(lang==='ar'?'ar':'en-GB');
+    return `<div class="cb-history-item">
+      <div><div style="font-weight:600;font-size:13.5px;">${escapeHtml(game)}</div>
+      <div style="font-size:11.5px;color:var(--text-dim);margin-top:2px;">$${parseFloat(x.amount_usd||0).toFixed(2)} · ${date}</div></div>
+      <span class="pill gold" style="direction:ltr;">+${(x.points_awarded||0).toLocaleString('ar')} pts</span>
+    </div>`;
+  }).join('');
+}
+
+// ─── شاشة الكسب (إعلانات + سلسلة + عجلة جديدة) ──────────────
+
+let spinConfigData = [];
+let adSummary = null;
+let streakData = null;
+
+async function loadEarnScreen() {
+  await Promise.all([loadStreakData(), loadAdSummary(), loadSpinConfig()]);
+  renderStreak();
+  renderAds();
+  renderWheelNew();
+  renderSpinButtons();
+}
+
+// ── السلسلة اليومية ──
+async function loadStreakData() {
+  const today = new Date().toISOString().slice(0,10);
+  const [sr, cr] = await Promise.all([
+    api(`/rest/v1/daily_streaks?select=*&user_id=eq.${session.user.id}`),
+    api(`/rest/v1/streak_checkins?select=*&user_id=eq.${session.user.id}&check_in_date=eq.${today}`)
+  ]);
+  streakData = {
+    streak: sr.ok && sr.data[0] ? sr.data[0] : { current_streak:0, streak_day:0 },
+    checkedToday: cr.ok && cr.data.length > 0
+  };
+}
+
+function renderStreak() {
+  if (!streakData) return;
+  const { streak, checkedToday } = streakData;
+  document.getElementById('streakCount').textContent = `${streak.current_streak||0} 🔥`;
+  const btn = document.getElementById('streakBtn');
+  btn.disabled = checkedToday;
+  btn.textContent = checkedToday ? t('streakAlready') : t('streakCheckIn');
+  const rewards = [5,10,15,20,25,30,50];
+  const currentDay = streak.streak_day || 0;
+  const grid = document.getElementById('streakDays');
+  grid.innerHTML = rewards.map((pts, i) => {
+    const dayNum = i+1;
+    const done = currentDay >= dayNum && checkedToday ? true : currentDay > dayNum;
+    const isToday = checkedToday ? currentDay===dayNum : currentDay+1===dayNum;
+    const isDay7 = dayNum===7;
+    return `<div style="text-align:center;padding:6px 2px;border-radius:8px;border:1px solid ${isToday?'var(--gold)':done?'var(--success)':'var(--border)'};background:${isToday?'rgba(240,169,62,.15)':done?'rgba(111,185,143,.1)':'var(--surface-2)'};opacity:${done||isToday?'1':'.5'}">
+      <div style="font-size:9px;color:var(--text-dim);">${t('streakDay')} ${dayNum}</div>
+      <div style="font-size:${isDay7?'11':'10'}px;margin:2px 0;">${isDay7?'🎁':'⭐'}</div>
+      <div style="font-size:9px;color:${isToday?'var(--gold)':done?'var(--success)':'var(--text-dim)'};">${isDay7?'30-50':'+'+pts}</div>
+    </div>`;
+  }).join('');
+}
+
+async function doCheckIn() {
+  const btn = document.getElementById('streakBtn');
+  btn.disabled = true;
+  const r = await api('/rest/v1/rpc/process_daily_checkin', {
+    method:'POST', body: JSON.stringify({p_user_id: session.user.id})
+  });
+  if (r.ok && r.data?.success) {
+    const d = r.data;
+    showMsg('streakMsg', `${t('streakCheckIn')} · +${d.total_awarded}${d.is_day_7?' 🎁':''}`, true);
+    await loadProfile(); renderAll();
+    await loadStreakData(); renderStreak();
+  } else {
+    const reason = r.data?.reason||'';
+    if (reason==='already_checked_in_today') {
+      showMsg('streakMsg', t('streakAlready'), true);
+      streakData.checkedToday=true; renderStreak();
+    } else { showMsg('streakMsg', t('genericError'), false); btn.disabled=false; }
+  }
+}
+
+// ── الإعلانات ──
+async function loadAdSummary() {
+  const today = new Date().toISOString().slice(0,10);
+  const r = await api(`/rest/v1/user_ads_daily_summary?select=*&user_id=eq.${session.user.id}&ad_date=eq.${today}`);
+  adSummary = r.ok && r.data[0] ? r.data[0] : {ads_watched:0, points_earned:0};
+}
+
+function renderAds() {
+  if (!adSummary) return;
+  const isVip = profile?.vip && (!profile?.vip_until || new Date(profile.vip_until)>new Date());
+  const cap = isVip?15:10; const reward = isVip?27:25;
+  const watched = adSummary.ads_watched||0;
+  const remaining = Math.max(0, cap-watched);
+  document.getElementById('adsBadge').textContent = `${watched}/${cap}`;
+  document.getElementById('adsProgressBar').style.width = `${Math.min(100,(watched/cap)*100)}%`;
+  document.getElementById('adsSubLabel').textContent = lang==='ar'
+    ? `${remaining} مشاهدة متبقية · +${reward} نقطة لكل إعلان`
+    : `${remaining} watches left · +${reward} pts each`;
+  const btn = document.getElementById('adWatchBtn');
+  btn.disabled = watched>=cap;
+  btn.textContent = watched>=cap ? t('adsLimit') : lang==='ar' ? `شاهد إعلاناً (+${reward} نقطة)` : `Watch an ad (+${reward} pts)`;
+}
+
+// ── AdMob: يشتغل في APK، ويتجاهل في المتصفح ──
+const AdMobAvailable = !!(window.Capacitor?.isNativePlatform?.() && window.Capacitor?.Plugins?.AdMob);
+
+async function initAdMob() {
+  if (!AdMobAvailable) return;
+  try {
+    await window.Capacitor.Plugins.AdMob.initialize({
+      appId: 'ca-app-pub-8280766115265288~5036142128',
+      initializeForTesting: false
+    });
+    // بانر أسفل الشاشة
+    await window.Capacitor.Plugins.AdMob.showBanner({
+      adId: 'ca-app-pub-8280766115265288/6616817103',
+      adSize: 'BANNER',
+      position: 'BOTTOM_CENTER'
+    });
+    // إعلان فتح التطبيق
+    await window.Capacitor.Plugins.AdMob.prepareAppOpenAd({
+      adId: 'ca-app-pub-8280766115265288/1358847490'
+    });
+    await window.Capacitor.Plugins.AdMob.showAppOpenAd();
+  } catch(e) { console.warn('AdMob init error:', e); }
+}
+
+async function showRewardedAdNative() {
+  // تشغيل الإعلان الحقيقي في APK
+  await window.Capacitor.Plugins.AdMob.prepareRewardVideoAd({
+    adId: 'ca-app-pub-8280766115265288/1751503238'
+  });
+  await window.Capacitor.Plugins.AdMob.showRewardVideoAd();
+  return new Promise((resolve, reject) => {
+    const listener = window.Capacitor.Plugins.AdMob.addListener(
+      'onRewardedVideoAdReward', () => { listener.remove(); resolve(true); }
+    );
+    window.Capacitor.Plugins.AdMob.addListener(
+      'onRewardedVideoAdClosed', () => { listener.remove(); reject(new Error('ad_closed')); }
+    );
+  });
+}
+
+async function doWatchAd() {
+  const btn = document.getElementById('adWatchBtn');
+  btn.disabled = true;
+  document.getElementById('adMsg').innerHTML = '';
+  btn.textContent = t('adWatching');
+
+  let adWatched = false;
+
+  if (AdMobAvailable) {
+    // ── APK: إعلان حقيقي ──
+    try {
+      await showRewardedAdNative();
+      adWatched = true;
+    } catch(e) {
+      // أغلق الإعلان بدون مشاهدة كاملة
+      showMsg('adMsg', lang==='ar'?'شاهد الإعلان كاملاً للحصول على النقاط':'Watch the full ad to earn points', false);
+      btn.disabled = false;
+      renderAds();
+      return;
+    }
+  } else {
+    // ── متصفح: محاكاة ──
+    await new Promise(r => setTimeout(r, 1500));
+    adWatched = true;
+  }
+
+  if (!adWatched) return;
+
+  // سجّل النقاط في Supabase
+  const r = await api('/rest/v1/rpc/process_rewarded_ad', {
+    method:'POST', body: JSON.stringify({p_user_id: session.user.id})
+  });
+  if (r.ok && r.data?.success) {
+    const pts = r.data.points_earned;
+    showMsg('adMsg', lang==='ar'?`تم! ربحت ${pts} نقطة 🎉`:`Done! +${pts} pts 🎉`, true);
+    adSummary.ads_watched = r.data.ads_today;
+    await loadProfile(); renderAll(); renderAds();
+    startAdCooldown(120);
+  } else {
+    const reason = r.data?.reason||'';
+    if (reason==='cooldown_active') startAdCooldown(r.data.wait_seconds||120);
+    else if (reason==='daily_limit_reached') { showMsg('adMsg', t('adsLimit'), false); await loadAdSummary(); renderAds(); }
+    else { showMsg('adMsg', t('genericError'), false); btn.disabled=false; }
+  }
+}
+
+function startAdCooldown(seconds) {
+  const btn = document.getElementById('adWatchBtn');
+  let left = seconds; btn.disabled=true;
+  const iv = setInterval(()=>{
+    left--;
+    btn.textContent = lang==='ar'?`انتظر ${left} ثانية`:`Wait ${left}s`;
+    if (left<=0) { clearInterval(iv); renderAds(); }
+  },1000);
+}
+
+// ── العجلة الجديدة ──
+async function loadSpinConfig() {
+  const r = await api('/rest/v1/spin_wheel_config?select=*&is_active=eq.true&order=display_order');
+  if (r.ok) spinConfigData = r.data;
+}
+
+function renderWheelNew() {
+  const wheel = document.getElementById('wheelEl');
+  if (!wheel || !spinConfigData.length) return;
+  const n = spinConfigData.length;
+  const colors = ['var(--gold)','var(--surface-2)','rgba(197,137,232,.5)','rgba(240,169,62,.4)'];
+  const seg = 360/n;
+  const gradient = spinConfigData.map((s,i) => `${colors[i%colors.length]} ${i*seg}deg ${(i+1)*seg}deg`).join(', ');
+  wheel.style.cssText = `background:conic-gradient(${gradient});border-radius:50%;border:5px solid var(--surface-2);transition:transform 3.5s cubic-bezier(.12,.67,.1,1);width:240px;height:240px;position:relative;`;
+  wheel.innerHTML = spinConfigData.map((s,i)=>{
+    const angle = i*seg+seg/2;
+    return `<div class="wheel-label" style="transform:translate(-50%,-50%) rotate(${angle}deg) translateY(-80px) rotate(-${angle}deg);font-size:12px;">${s.is_loss?'💨':s.points}</div>`;
+  }).join('');
+}
+
+async function renderSpinButtons() {
+  const today = new Date().toISOString().slice(0,10);
+  const r = await api(`/rest/v1/user_spin_daily_summary?select=*&user_id=eq.${session.user.id}&spin_date=eq.${today}`);
+  const summary = r.ok && r.data[0] ? r.data[0] : {free_spin_used:false};
+  const freeBtn = document.getElementById('spinFreeBtn');
+  if (freeBtn) { freeBtn.disabled=summary.free_spin_used; freeBtn.style.opacity=summary.free_spin_used?'.5':'1'; }
+}
+
+async function doSpinNew(type) {
+  const msgEl = document.getElementById('spinMsgNew');
+  msgEl.innerHTML='';
+  ['spinFreeBtn','spinPaidBtn','spinBundleBtn'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=true;});
+  document.getElementById('spinStatusNew').textContent = lang==='ar'?'جاري التدوير...':'Spinning...';
+  const r = await api('/rest/v1/rpc/process_spin_wheel', {
+    method:'POST', body:JSON.stringify({p_user_id:session.user.id, p_is_free:type==='free', p_bundle:type==='bundle'})
+  });
+  if (!r.ok || !r.data?.success) {
+    const reason = r.data?.reason||'';
+    let msg = t('genericError');
+    if (reason==='free_spin_already_used') msg=t('spinFreeUsed');
+    else if (reason==='insufficient_balance') msg=lang==='ar'?`رصيدك: ${r.data.balance} — مطلوب: ${r.data.cost}`:`Balance: ${r.data.balance} — Need: ${r.data.cost}`;
+    showMsg('spinMsgNew', msg, false);
+    ['spinFreeBtn','spinPaidBtn','spinBundleBtn'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=false;});
+    document.getElementById('spinStatusNew').textContent='';
+    return;
+  }
+  const data = r.data;
+  const n = spinConfigData.length; const seg = 360/n;
+  const resultIdx = spinConfigData.findIndex(s=>s.label===data.result_label);
+  const wheel = document.getElementById('wheelEl');
+  const currentRot = parseFloat(wheel.dataset.rot||0);
+  const targetAngle = currentRot+1800+(360-(resultIdx>=0?resultIdx*seg+seg/2:0));
+  wheel.style.transform=`rotate(${targetAngle}deg)`; wheel.dataset.rot=targetAngle;
+  setTimeout(async()=>{
+    if (data.is_loss) showMsg('spinMsgNew', t('spinLoss'), false);
+    else showMsg('spinMsgNew', lang==='ar'?`ربحت ${data.points_earned} نقطة 🎉`:`Won ${data.points_earned} pts 🎉`, true);
+    document.getElementById('spinStatusNew').textContent=`${lang==='ar'?'رصيدك:':'Balance:'} ${data.new_balance}`;
+    await loadProfile(); renderAll(); await renderSpinButtons();
+    ['spinPaidBtn','spinBundleBtn'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=false;});
+  },3700);
+}
+
+// ─── شات عام + خاص ───────────────────────────────────────────
+let chatChannel=null, chatInited=false, chatLastSent=0;
+let dmChannel=null, dmRoom=null, dmWithId=null, dmLastSent=0;
+const CHAT_COOLDOWN=3000;
+
+function escapeChat(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+// تبويب عام/خاص
+function switchChatTab(tab){
+  document.getElementById('tabPublic').classList.toggle('active', tab==='public');
+  document.getElementById('tabPrivate').classList.toggle('active', tab==='private');
+  document.getElementById('chatPublicWrap').style.display  = tab==='public'  ? 'block':'none';
+  document.getElementById('chatPrivateWrap').style.display = tab==='private' ? 'block':'none';
+  if(tab==='public'  && !chatInited) initChat();
+  if(tab==='private') loadDmUsers();
+}
+
+// ── شات عام ──
+async function initChat(){
+  if(chatInited)return; chatInited=true;
+  document.getElementById('chatInput').placeholder=t('chatPlaceholder');
+  document.getElementById('chatStatus').textContent=t('chatConnecting');
+  await fetchChatHistory('public','chatMsgs');
+  subscribeChatRealtime('public','chatMsgs');
+}
+
+async function fetchChatHistory(room,elId){
+  const res=await fetch(
+    `${SUPABASE_URL}/rest/v1/chat_messages?select=*&deleted=eq.false&room=eq.${encodeURIComponent(room)}&order=created_at.asc&limit=60`,
+    {headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${session.access_token}`}}
+  );
+  if(!res.ok)return;
+  const msgs=await res.json();
+  const c=document.getElementById(elId); c.innerHTML='';
+  if(!msgs.length){c.innerHTML=`<div class="empty">${t('chatEmpty')}</div>`;return;}
+  msgs.forEach(m=>appendBubble(m,false,elId));
+  scrollChat(elId);
+}
+
+function subscribeChatRealtime(room,elId){
+  const wsUrl=SUPABASE_URL.replace('https://','wss://')+'/realtime/v1/websocket?apikey='+SUPABASE_ANON_KEY+'&vsn=1.0.0';
+  const ws=new WebSocket(wsUrl);
+  ws.onopen=()=>ws.send(JSON.stringify({topic:'realtime:public:chat_messages',event:'phx_join',payload:{config:{broadcast:{self:false}}},ref:'1'}));
+  ws.onmessage=(e)=>{
+    try{
+      const msg=JSON.parse(e.data);
+      if(msg.event==='INSERT'&&msg.payload?.record&&!msg.payload.record.deleted&&msg.payload.record.room===room){
+        document.querySelector(`#${elId} .empty`)?.remove();
+        appendBubble(msg.payload.record,true,elId); scrollChat(elId);
+      }
+      if(msg.event==='UPDATE'&&msg.payload?.record?.deleted){
+        const el=document.querySelector(`[data-msgid="${msg.payload.record.id}"]`);
+        if(el){el.querySelector('.chat-text').textContent=t('chatDeleted');el.querySelector('.chat-del')?.remove();el.style.opacity='.5';}
+      }
+      if(msg.event==='phx_reply'&&elId==='chatMsgs') document.getElementById('chatStatus').textContent=t('chatConnected');
+    }catch{}
+  };
+  ws.onerror=()=>{if(elId==='chatMsgs') document.getElementById('chatStatus').textContent='⚠ '+t('genericError');};
+  ws.onclose=()=>{
+    if(elId==='chatMsgs'){chatInited=false;setTimeout(()=>{if(document.getElementById('chatScreen').classList.contains('active'))initChat();},4000);}
+  };
+  if(room==='public') chatChannel=ws; else dmChannel=ws;
+}
+
+function appendBubble(msg,animate,elId='chatMsgs'){
+  const isMine=msg.user_id===session.user.id;
+  const time=new Date(msg.created_at).toLocaleTimeString(lang==='ar'?'ar':'en-GB',{hour:'2-digit',minute:'2-digit'});
+  const div=document.createElement('div');
+  div.className=`chat-bubble ${isMine?'mine':'other'}`;
+  div.setAttribute('data-msgid',msg.id);
+  if(animate)div.style.animation='fade .2s ease';
+  div.innerHTML=`${!isMine?`<div class="chat-name">${escapeChat(msg.username)}</div>`:''}
+    <span class="chat-text">${escapeChat(msg.content)}</span>
+    ${isMine?`<button class="chat-del" onclick="deleteChatMsg(${msg.id},this,'${elId}')">✕</button>`:''}
+    <div class="chat-time">${time}</div>`;
+  document.getElementById(elId).appendChild(div);
+}
+
+function scrollChat(elId='chatMsgs'){const c=document.getElementById(elId);c.scrollTop=c.scrollHeight;}
+
+async function sendChatMsg(){
+  const inp=document.getElementById('chatInput');
+  const text=inp.value.trim(); if(!text)return;
+  if(Date.now()-chatLastSent<CHAT_COOLDOWN){showChatHint(t('chatTooFast'),'chatMsgs');return;}
+  if(profile?.banned){showChatHint(t('chatBanned'),'chatMsgs');return;}
+  const btn=document.getElementById('chatSendBtn'); btn.disabled=true; chatLastSent=Date.now();
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/chat_messages`,{
+    method:'POST',
+    headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${session.access_token}`,'Content-Type':'application/json',Prefer:'return=representation'},
+    body:JSON.stringify({user_id:session.user.id,username:profile?.email?.split('@')[0]||'مستخدم',content:text,room:'public'})
+  });
+  if(res.ok){
+    const rec=(await res.json())[0];
+    if(rec){document.querySelector('#chatMsgs .empty')?.remove();appendBubble(rec,true,'chatMsgs');scrollChat('chatMsgs');}
+    inp.value='';
+  }else{
+    const err=await res.json().catch(()=>({}));
+    const m=err?.message||'';
+    showChatHint(m.includes('rate_limit')?t('chatRateLimit'):m.includes('banned')?t('chatBanned'):t('genericError'),'chatMsgs');
+  }
+  btn.disabled=false; inp.focus();
+}
+
+// ── شات خاص ──
+async function loadDmUsers(){
+  const r=await api(`/rest/v1/profiles?select=id,email&id=neq.${session.user.id}&limit=50`);
+  const el=document.getElementById('dmUserList'); el.innerHTML='';
+  if(!r.ok||!r.data?.length){el.innerHTML=`<div class="empty">${t('dmSelectUser')}</div>`;return;}
+  el.innerHTML=r.data.map(u=>{
+    const name=u.email?.split('@')[0]||'مستخدم';
+    return `<div class="dm-user" onclick="openDm('${u.id}','${escapeChat(name)}')">
+      <div class="dm-avatar">👤</div>
+      <div class="dm-name">${escapeChat(name)}</div>
+      <span style="font-size:18px;color:var(--text-dim)">›</span>
+    </div>`;
+  }).join('');
+}
+
+async function openDm(userId,name){
+  dmWithId=userId; dmRoom=getRoomId(session.user.id,userId);
+  document.getElementById('dmListWrap').style.display='none';
+  document.getElementById('dmChatWrap').style.display='block';
+  document.getElementById('dmWithName').textContent=name;
+  document.getElementById('dmInput').placeholder=t('dmPlaceholder');
+  await fetchChatHistory(dmRoom,'dmMsgs');
+  if(dmChannel){try{dmChannel.close();}catch{} dmChannel=null;}
+  subscribeChatRealtime(dmRoom,'dmMsgs');
+}
+
+function closeDm(){
+  if(dmChannel){try{dmChannel.close();}catch{} dmChannel=null;}
+  dmRoom=null; dmWithId=null;
+  document.getElementById('dmChatWrap').style.display='none';
+  document.getElementById('dmListWrap').style.display='block';
+}
+
+function getRoomId(a,b){return 'dm_'+(a<b?a+'_'+b:b+'_'+a);}
+
+async function sendDmMsg(){
+  const inp=document.getElementById('dmInput');
+  const text=inp.value.trim(); if(!text||!dmRoom)return;
+  if(Date.now()-dmLastSent<CHAT_COOLDOWN){showChatHint(t('chatTooFast'),'dmMsgs');return;}
+  dmLastSent=Date.now();
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/chat_messages`,{
+    method:'POST',
+    headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${session.access_token}`,'Content-Type':'application/json',Prefer:'return=representation'},
+    body:JSON.stringify({user_id:session.user.id,username:profile?.email?.split('@')[0]||'مستخدم',content:text,room:dmRoom})
+  });
+  if(res.ok){
+    const rec=(await res.json())[0];
+    if(rec){document.querySelector('#dmMsgs .empty')?.remove();appendBubble(rec,true,'dmMsgs');scrollChat('dmMsgs');}
+    inp.value='';
+  }else{ showChatHint(t('genericError'),'dmMsgs'); }
+  inp.focus();
+}
+
+async function deleteChatMsg(id,btn,elId='chatMsgs'){
+  if(!confirm(lang==='ar'?'تأكيد حذف الرسالة؟':'Delete this message?'))return;
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/chat_messages?id=eq.${id}`,{
+    method:'PATCH',
+    headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${session.access_token}`,'Content-Type':'application/json'},
+    body:JSON.stringify({deleted:true})
+  });
+  if(res.ok){const b=btn.closest('.chat-bubble');b.querySelector('.chat-text').textContent=t('chatDeleted');btn.remove();b.style.opacity='.5';}
+}
+
+function showChatHint(msg,elId='chatMsgs'){
+  const div=document.createElement('div'); div.className='chat-status'; div.textContent=msg;
+  document.getElementById(elId).appendChild(div); scrollChat(elId); setTimeout(()=>div.remove(),3000);
+}
+// ────────────────────────────────────────────────────────────────
+
+applyLang();
+</script>
+</body>
+</html>
