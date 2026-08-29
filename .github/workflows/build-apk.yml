@@ -33,7 +33,7 @@ jobs:
       - name: Create www folder and copy app
         run: |
           mkdir -p www
-          cp public/index.html www/index.html
+          cp index.html www/index.html
 
       - name: Add Android platform
         run: npx cap add android
