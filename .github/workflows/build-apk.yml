@@ -36,6 +36,26 @@ jobs:
           cp index.html www/index.html
 
       - name: Add Android platform
+        run: |
+          rm -rf android
+          npx cap add android
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: GameRewards-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+      - name: Add Android platform
         run: npx cap add android
 
       - name: Sync Capacitor
